@@ -24,9 +24,20 @@ export default class ProductDetailComponent {
       this.productService.getOne(this.id)
       .subscribe({
         next: (product) => {
-          this.product.set(product);
-          if (product.images.length > 0){
-            this.cover.set(product.images[0]);
+          const processedImages = product.images.map(image => {
+            let cleanedImage = image.replace(/^\["?|"?]$/g, '');
+            try {
+              cleanedImage = JSON.parse(cleanedImage)[0];
+            } catch (error) {
+              // Do nothing if parsing fails
+            }
+            return cleanedImage;
+          });
+
+          this.product.set({ ...product, images: processedImages });
+
+          if (processedImages.length > 0) {
+            this.cover.set(processedImages[0]);
           }
         }
       })
